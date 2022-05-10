@@ -13,6 +13,10 @@ services:
       - type: volume
         source: readyapp
         target: /usr/local/tomcat/webapps/  
+
+      - type: bind
+        source: ./WebContent/Config.properties
+        target: /usr/local/tomcat/ROOT/Config.properties
      
   bld:
     build:   
@@ -30,7 +34,7 @@ services:
         MYSQL_ROOT_PASSWORD: root
         MYSQL_DATABASE: db_app
     ports:
-        - "3306:3306"
+      - "3306:3306"
 
 volumes:
   readyapp:
