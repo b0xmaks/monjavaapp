@@ -11,4 +11,4 @@ WORKDIR /makeapp
 RUN git clone https://github.com/prometheus/jmx_exporter.git
 WORKDIR /makeapp/jmx_exporter 
 RUN ./mvnw package \
- && cp /makeapp/jmx_exporter/integration_tests/smoke_tests/target/*.jar /makeapp
+# && cp /makeapp/collector/target/collector*.jar /makeapp
