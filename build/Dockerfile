@@ -7,3 +7,8 @@ RUN git clone https://github.com/b0xmaks/dbapp.git
 WORKDIR /makeapp/dbapp
 RUN mvn package -Dmaven.test.skip -T 1C \
  && cp /makeapp/dbapp/target/*.war /makeapp
+WORKDIR /makeapp
+RUN git clone https://github.com/prometheus/jmx_exporter.git
+WORKDIR /makeapp/jmx_exporter 
+RUN mvn package -Dmaven.test.skip -T 1C \
+ && cp /makeapp/collector/target/*.jar /makeapp
