@@ -9,6 +9,6 @@ RUN mvn package -Dmaven.test.skip -T 1C \
  && cp /makeapp/dbapp/target/*.war /makeapp
 WORKDIR /makeapp
 RUN git clone https://github.com/prometheus/jmx_exporter.git
-WORKDIR /makeapp/jmx_exporter 
+WORKDIR /makeapp/jmx_exporter/collector
 RUN ./mvnw package \
-# && cp /makeapp/collector/target/collector*.jar /makeapp
+ && cp /makeapp/jmx_exporter/collector/target/collector*.jar /makeapp
