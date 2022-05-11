@@ -17,7 +17,7 @@ services:
       - type: bind
         source: ./WebContent/Config.properties
         target: /usr/local/tomcat/ROOT/Config.properties
-#    command: bash -c "java -cp readyapp/collector*.jar  io.prometheus.jmx.JmxScraper  service:jmx:rmi:http://run:8080/App42PaaS-Java-MySQL-Sample-0.0.1-SNAPSHOT/"
+    command: bash -c "java -cp readyapp/collector*.jar  io.prometheus.jmx.JmxScraper  service:jmx:rmi:http://run:8080/App42PaaS-Java-MySQL-Sample-0.0.1-SNAPSHOT/"
      
   bld:
     build:   
