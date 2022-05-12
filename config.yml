@@ -1,6 +1,4 @@
 ---
 startDelaySeconds: 0
 ssl: false
-lowercaseOutputName: false
-lowercaseOutputLabelNames: false
-jmxUrl: service:jmx:rmi:///jndi/rmi://run:80/App42PaaS-Java-MySQL-Sample-0.0.1-SNAPSHOT/
+jmxUrl: service:jmx:rmi:///jndi/rmi://localhost/App42PaaS-Java-MySQL-Sample-0.0.1-SNAPSHOT/
