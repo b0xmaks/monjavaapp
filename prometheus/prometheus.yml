@@ -39,7 +39,7 @@ scrape_configs:
   - job_name: run
     scrape_interval: 5s
     static_configs:
-      - targets: ['run:5556']
+      - targets: ['localhost:5556']
 
 #  - job_name: slave2
 #    scrape_interval: 5s
