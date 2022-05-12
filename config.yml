@@ -1,4 +1,4 @@
 ---
 startDelaySeconds: 0
 ssl: false
-jmxUrl: service:jmx:rmi:///jndi/rmi://localhost/App42PaaS-Java-MySQL-Sample-0.0.1-SNAPSHOT/
+jmxUrl: service:jmx:rmi:///jndi/rmi://10.70.70.23/App42PaaS-Java-MySQL-Sample-0.0.1-SNAPSHOT/
