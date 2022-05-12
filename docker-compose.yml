@@ -11,20 +11,19 @@ services:
       - database
     volumes:
       - type: volume
-        source: readyapp
+        source: readyapp/app/
         target: /usr/local/tomcat/webapps/  
 
       - type: bind
         source: ./WebContent/Config.properties
         target: /usr/local/tomcat/ROOT/Config.properties
-#    command: bash -c "java -cp readyapp/collector*.jar  io.prometheus.jmx.JmxScraper  service:jmx:rmi:http://run:8080/App42PaaS-Java-MySQL-Sample-0.0.1-SNAPSHOT/"
      
   bld:
     build:   
       context: build/
     volumes:
       - type: volume
-        source: readyapp
+        source: readyapp/
         target: /makeapp
 
   database:
@@ -36,6 +35,15 @@ services:
         MYSQL_DATABASE: db_app
     ports:
       - "3306:3306"
+
+  jmx:
+    image: bitnami/jmx-exporter:latest
+    ports:
+      - 5556:5556
+    volumes:
+      - type: bind
+        source: ./config.yml
+        target: /opt/bitnami/jmx-exporter/config.yml
 
 volumes:
   readyapp:
