@@ -1,54 +1,21 @@
----
-version: '3.8'
+version: '3.1'
+
+volumes:
+    prometheus_data: {}
+    grafana_data: {}
+    prometheus_config_data: {}
+    alertmanager_config_data: {}
+
+networks:
+  front-tier:
+  back-tier:
+
 services:
-  
-  run:
-    image: tomcat:9.0.62-jdk8-temurin
-    ports:
-      - "8080:8080"
-    depends_on:
-      - bld
-      - database
-    volumes:
-      - type: volume
-        source: readyapp
-        target: /usr/local/tomcat/webapps/  
-
-      - type: bind
-        source: ./WebContent/Config.properties
-        target: /usr/local/tomcat/ROOT/Config.properties
-     
-  bld:
-    build:   
-      context: build/
-    volumes:
-      - type: volume
-        source: readyapp
-        target: /makeapp
-
-  database:
-    image: mysql:5.6.51
-    restart: always
-    environment:
-        MYSQL_ROOT_USER: root
-        MYSQL_ROOT_PASSWORD: root
-        MYSQL_DATABASE: db_app
-    ports:
-      - "3306:3306"
-
-  jmx:
-    image: bitnami/jmx-exporter:latest
-    ports:
-      - 5556:5556
-    volumes:
-      - type: bind
-        source: ./config.yml
-        target: /opt/bitnami/jmx-exporter/config.yml
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.0.0
     volumes:
-      - ./prometheus/:/etc/prometheus/
+      - prometheus_config_data:/etc/prometheus/
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -60,12 +27,15 @@ services:
     links:
       - cadvisor:cadvisor
       - alertmanager:alertmanager
-
     depends_on:
       - cadvisor
     networks:
       - back-tier
     restart: always
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == ${HOSTNAME}
 
   node-exporter:
     image: prom/node-exporter
@@ -91,17 +61,44 @@ services:
     ports:
       - 9093:9093
     volumes:
-      - ./alertmanager/:/etc/alertmanager/
+      - alertmanager_config_data:/etc/alertmanager/
     networks:
       - back-tier
     restart: always
     command:
-      - '--config.file=/etc/alertmanager/config.yml'
+      - "--config.file=/etc/alertmanager/config.yml"
       - '--storage.path=/alertmanager'
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == ${HOSTNAME}
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - 8080:8080
+    networks:
+      - back-tier
+    restart: always
+    deploy:
+      mode: global
+  source:
+    image: containerize/git
+    environment: 
+      - REPO_LOCAL=/data/git/repos/prometheus
+      - REPO_BRANCH=version-2
+      - REPO_REMOTE=https://github.com/vegasbrianc/prometheus.git
+    tty: true
+    volumes: 
+      - prometheus_config_data:/data/git/repos/prometheus/prometheus
+      - alertmanager_config_data:/data/git/repos/prometheus/alertmanager
 
   grafana:
     image: grafana/grafana
-    user: "472"
     depends_on:
       - prometheus
     ports:
@@ -109,19 +106,9 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning/:/etc/grafana/provisioning/
-    env_file:
-      - ./grafana/config.monitoring
+    environment: 
+      - GF_SECURITY_ADMIN_PASSWORD=foobar
+      - GF_USERS_ALLOW_SIGN_UP=false
     networks:
       - back-tier
       - front-tier
-    restart: always
-
-volumes:
-    readyapp:
-    prometheus_data: {}
-    grafana_data: {}
-
-networks:
-  default:
-  front-tier:
-  back-tier:

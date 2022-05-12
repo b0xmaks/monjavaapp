@@ -1,52 +1,17 @@
----
-version: '3.8'
+version: '3.1'
+
+volumes:
+    prometheus_data: {}
+    grafana_data: {}
+
+networks:
+  front-tier:
+  back-tier:
+
 services:
-  
-  run:
-    image: tomcat:9.0.62-jdk8-temurin
-    ports:
-      - "8080:8080"
-    depends_on:
-      - bld
-      - database
-    volumes:
-      - type: volume
-        source: readyapp
-        target: /usr/local/tomcat/webapps/  
-
-      - type: bind
-        source: ./WebContent/Config.properties
-        target: /usr/local/tomcat/ROOT/Config.properties
-     
-  bld:
-    build:   
-      context: build/
-    volumes:
-      - type: volume
-        source: readyapp
-        target: /makeapp
-
-  database:
-    image: mysql:5.6.51
-    restart: always
-    environment:
-        MYSQL_ROOT_USER: root
-        MYSQL_ROOT_PASSWORD: root
-        MYSQL_DATABASE: db_app
-    ports:
-      - "3306:3306"
-
-  jmx:
-    image: bitnami/jmx-exporter:latest
-    ports:
-      - 5556:5556
-    volumes:
-      - type: bind
-        source: ./config.yml
-        target: /opt/bitnami/jmx-exporter/config.yml
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.1.0
     volumes:
       - ./prometheus/:/etc/prometheus/
       - prometheus_data:/prometheus
@@ -60,12 +25,15 @@ services:
     links:
       - cadvisor:cadvisor
       - alertmanager:alertmanager
-
     depends_on:
       - cadvisor
     networks:
       - back-tier
     restart: always
+#    deploy:
+#      placement:
+#        constraints:
+#          - node.hostname == ${HOSTNAME}
 
   node-exporter:
     image: prom/node-exporter
@@ -98,10 +66,27 @@ services:
     command:
       - '--config.file=/etc/alertmanager/config.yml'
       - '--storage.path=/alertmanager'
+#    deploy:
+#      placement:
+#        constraints:
+#          - node.hostname == ${HOSTNAME}
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - 8080:8080
+    networks:
+      - back-tier
+    restart: always
+    deploy:
+      mode: global
 
   grafana:
     image: grafana/grafana
-    user: "472"
     depends_on:
       - prometheus
     ports:
@@ -116,12 +101,3 @@ services:
       - front-tier
     restart: always
 
-volumes:
-    readyapp:
-    prometheus_data: {}
-    grafana_data: {}
-
-networks:
-  default:
-  front-tier:
-  back-tier:
