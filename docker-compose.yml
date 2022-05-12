@@ -58,11 +58,11 @@ services:
     ports:
       - 9090:9090
     links:
-      - cadvisor:cadvisor
+#      - cadvisor:cadvisor
       - alertmanager:alertmanager
 
     depends_on:
-      - cadvisor
+#      - cadvisor
     networks:
       - back-tier
     restart: always
