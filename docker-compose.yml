@@ -61,7 +61,7 @@ services:
 #      - cadvisor:cadvisor
       - alertmanager:alertmanager
 
-    depends_on:
+#    depends_on:
 #      - cadvisor
     networks:
       - back-tier
