@@ -11,7 +11,7 @@ services:
       - database
     volumes:
       - type: volume
-        source: readyapp/app/
+        source: readyapp/
         target: /usr/local/tomcat/webapps/  
 
       - type: bind
